@@ -27,8 +27,7 @@ namespace AspNetCoreExt.AppInitialization
         public AppInitializationMiddleware(RequestDelegate next,
             IOptions<AppInitializationOptions> options,
             ILoggerFactory loggerFactory,
-            IPlaceholderProvider placeholderProvider,
-            IHttpApplication<HttpContext> server)
+            IPlaceholderProvider placeholderProvider)
         {
             this.next = next ?? throw new ArgumentNullException(nameof(next));
             this.placeholderProvider = placeholderProvider ?? throw new ArgumentNullException(nameof(placeholderProvider));
@@ -36,21 +35,26 @@ namespace AspNetCoreExt.AppInitialization
             this.options = options.Value ?? throw new ArgumentNullException(nameof(options));
         }
 
-        public Task Invoke(HttpContext httpContext)
+        public async Task Invoke(HttpContext httpContext)
         {
             if (!this.isInitialized)
             {
-                return Initialize(httpContext);
+                var served = await Initialize(httpContext);
+                if (served)
+                {
+                    return;
+                }
             }
             else
             {
                 this.logger.LogDebug("Skipping initialization");
-
-                return this.next(httpContext);
             }
+
+            await this.next(httpContext);
+            
         }
 
-        private async Task Initialize(HttpContext httpContext)
+        private async Task<bool> Initialize(HttpContext httpContext)
         {
             this.logger.LogDebug("Testing if initialization has been kicked off");
 
@@ -66,13 +70,20 @@ namespace AspNetCoreExt.AppInitialization
             }
 
             if (this.initializationTask.IsCompleted)
-            { 
+            {
                 // allow initialzation to serve up any exceptions
                 await this.initializationTask;
-            }
+                this.isInitialized = true;
 
-            this.logger.LogInformation("Serving a placeholder while waiting for the app to be initialized");
-            await this.placeholderProvider.ServePlaceholderFile(httpContext);
+                return false;
+            }
+            else
+            {
+                this.logger.LogInformation("Serving a placeholder while waiting for the app to be initialized");
+                await this.placeholderProvider.ServePlaceholderFile(httpContext);
+
+                return true;
+            }
         }
 
         private async Task PerformInitialize(HttpContext httpContext)
@@ -109,7 +120,6 @@ namespace AspNetCoreExt.AppInitialization
             initializationProviders = null;
 
             this.logger.LogInformation("First time initialization performed");
-            this.isInitialized = true;
         }
     }
 }
