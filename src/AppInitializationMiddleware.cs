@@ -1,4 +1,5 @@
 ﻿using AspNetCoreExt.AppInitialization.Internal;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -26,7 +27,8 @@ namespace AspNetCoreExt.AppInitialization
         public AppInitializationMiddleware(RequestDelegate next,
             IOptions<AppInitializationOptions> options,
             ILoggerFactory loggerFactory,
-            IPlaceholderProvider placeholderProvider)
+            IPlaceholderProvider placeholderProvider,
+            IHttpApplication<HttpContext> server)
         {
             this.next = next ?? throw new ArgumentNullException(nameof(next));
             this.placeholderProvider = placeholderProvider ?? throw new ArgumentNullException(nameof(placeholderProvider));
