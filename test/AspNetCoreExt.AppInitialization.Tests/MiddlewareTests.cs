@@ -13,11 +13,11 @@ namespace AspNetCoreExt.AppInitialization.Tests
         [Fact]
         public async Task PerformsInitialization()
         {
-            var appInitializationProvider = new FakeAppInitializationProvider();
+            var appInitializationProvider = new FakeAppInitializationService();
             var builder = new WebHostBuilder()
                 .ConfigureServices(app =>
                 {
-                    app.Add(new ServiceDescriptor(typeof(IAppInitializationProvider), appInitializationProvider));
+                    app.Add(new ServiceDescriptor(typeof(IAppInitializationService), appInitializationProvider));
                     app.AddAppInitialization();
                 })
                 .Configure(app =>
@@ -49,11 +49,11 @@ namespace AspNetCoreExt.AppInitialization.Tests
         [Fact]
         public async Task ServersConfiguredFileFromWebRoot()
         {
-            var appInitializationProvider = new FakeAppInitializationProvider();
+            var appInitializationProvider = new FakeAppInitializationService();
             var builder = new WebHostBuilder()
                 .ConfigureServices(app =>
                 {
-                    app.Add(new ServiceDescriptor(typeof(IAppInitializationProvider), appInitializationProvider));
+                    app.Add(new ServiceDescriptor(typeof(IAppInitializationService), appInitializationProvider));
                     app.AddAppInitialization();
                 })
                 .Configure(app =>
