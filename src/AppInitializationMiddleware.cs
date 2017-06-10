@@ -91,7 +91,7 @@ namespace AspNetCoreExt.AppInitialization
             this.logger.LogInformation("Performing first time initialization");
 
             // resolve providers dynamically so we can release collect them once initialization has completed
-            var initializationProviders = httpContext.RequestServices.GetServices<IAppInitializationProvider>();
+            var initializationProviders = httpContext.RequestServices.GetServices<IAppInitializationService>();
             var initializationTasks = new List<Task>();
             foreach (var provider in initializationProviders)
             {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AspNetCoreExt.AppInitialization
 {
-    public interface IAppInitializationProvider
+    public interface IAppInitializationService
     {
 		Task Initialize();
     }

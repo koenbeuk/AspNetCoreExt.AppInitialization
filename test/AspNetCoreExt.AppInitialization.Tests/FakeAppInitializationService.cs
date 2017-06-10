@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AspNetCoreExt.AppInitialization.Tests
 {
-    public class FakeAppInitializationProvider : IAppInitializationProvider
+    public class FakeAppInitializationService : IAppInitializationService
     {
         public Task Initialize()
         {

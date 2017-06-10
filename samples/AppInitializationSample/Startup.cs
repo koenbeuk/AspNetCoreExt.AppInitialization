@@ -17,13 +17,14 @@ namespace AppInitializationSample
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IAppInitializationProvider, ScopedAppInitializationProvider>();
-            services.AddSingleton<IAppInitializationProvider, SingletonAppInitializationProvider>();
+            services.AddScoped<IAppInitializationService, ScopedAppInitializationService>();
+            services.AddSingleton<IAppInitializationService, SingletonAppInitializationService>();
 
             services.AddAppInitialization(options =>
             {
                 options.RefreshTime = TimeSpan.FromSeconds(1);
                 options.StartupPlaceholderFilePath = "/startup.html";
+                options.WarmupPaths.Add("/");
             });
         }
 

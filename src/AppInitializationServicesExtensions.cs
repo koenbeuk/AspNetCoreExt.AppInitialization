@@ -19,6 +19,7 @@ namespace AspNetCoreExt.AppInitialization
             }
 
             services.TryAddSingleton<IPlaceholderProvider, PlaceholderProvider>();
+            services.TryAddSingleton<IWarmupService, WarmupService>();
 
             if (setupAction != null)
             {

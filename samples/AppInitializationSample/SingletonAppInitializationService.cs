@@ -10,13 +10,13 @@ using System.Threading;
 
 namespace AppInitializationSample
 {
-    public class SingletonAppInitializationProvider : IAppInitializationProvider
+    public class SingletonAppInitializationService : IAppInitializationService
     {
         private readonly ILogger logger;
 
-        public SingletonAppInitializationProvider(ILoggerFactory loggerFactory)
+        public SingletonAppInitializationService(ILoggerFactory loggerFactory)
         {
-            this.logger = loggerFactory.CreateLogger<SingletonAppInitializationProvider>();
+            this.logger = loggerFactory.CreateLogger<SingletonAppInitializationService>();
         }
 
         public async Task Initialize()
