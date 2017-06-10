@@ -17,6 +17,7 @@ namespace AspNetCoreExt.AppInitialization
     {
         private readonly RequestDelegate next;
         private readonly IPlaceholderProvider placeholderProvider;
+        private readonly IWarmupService warmupService;
         private readonly ILogger logger;
         private readonly AppInitializationOptions options;
 
@@ -27,10 +28,12 @@ namespace AspNetCoreExt.AppInitialization
         public AppInitializationMiddleware(RequestDelegate next,
             IOptions<AppInitializationOptions> options,
             ILoggerFactory loggerFactory,
-            IPlaceholderProvider placeholderProvider)
+            IPlaceholderProvider placeholderProvider,
+            IWarmupService warmupService)
         {
             this.next = next ?? throw new ArgumentNullException(nameof(next));
             this.placeholderProvider = placeholderProvider ?? throw new ArgumentNullException(nameof(placeholderProvider));
+            this.warmupService = warmupService ?? throw new ArgumentNullException(nameof(warmupService));
             this.logger = loggerFactory?.CreateLogger<AppInitializationMiddleware>() ?? throw new ArgumentNullException(nameof(loggerFactory));
             this.options = options.Value ?? throw new ArgumentNullException(nameof(options));
         }
@@ -39,7 +42,16 @@ namespace AspNetCoreExt.AppInitialization
         {
             if (!this.isInitialized)
             {
-                var served = await Initialize(httpContext);
+                bool served;
+                if (this.warmupService.IsWarmupRequest(httpContext))
+                {
+                    served = false;
+                    this.logger.LogDebug("Detected a warmup request, skipping initialization");
+                }
+                else
+                {
+                    served = await Initialize(httpContext);
+                }
                 if (served)
                 {
                     return;
@@ -90,18 +102,16 @@ namespace AspNetCoreExt.AppInitialization
         {
             this.logger.LogInformation("Performing first time initialization");
 
+            var warmupUrls = GetWarmupUrls(httpContext).ToArray();
+
             // resolve providers dynamically so we can release collect them once initialization has completed
             var initializationProviders = httpContext.RequestServices.GetServices<IAppInitializationService>();
-            var initializationTasks = new List<Task>();
-            foreach (var provider in initializationProviders)
-            {
-                var initializationTask = provider.Initialize();
-                initializationTasks.Add(initializationTask);
-            }
+            var initializationTasks = initializationProviders.Select(x => x.Initialize());
 
             try
             {
                 await Task.WhenAll(initializationTasks);
+                await this.warmupService.RunWarmupRequests(warmupUrls);
             }
             catch (AggregateException ex)
             {
@@ -120,6 +130,24 @@ namespace AspNetCoreExt.AppInitialization
             initializationProviders = null;
 
             this.logger.LogInformation("First time initialization performed");
+        }
+
+        private IEnumerable<Uri> GetWarmupUrls(HttpContext httpContext)
+        {
+            var request = httpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host.Host}:{request.Host.Port}";
+
+            var uriBuilder = new UriBuilder(request.Scheme, request.Host.Host);
+            if (request.Host.Port != null)
+            {
+                uriBuilder.Port = request.Host.Port.Value;
+            }
+
+            foreach (var path in this.options.WarmupPaths)
+            {
+                uriBuilder.Path = request.Path;
+                yield return uriBuilder.Uri;
+            }
         }
     }
 }

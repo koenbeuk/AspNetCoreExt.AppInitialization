@@ -11,6 +11,6 @@ namespace AspNetCoreExt.AppInitialization.Internal
     {
         bool IsWarmupRequest(HttpContext httpContext);
 
-		Task RunWarmupRequests(Uri baseAddress); 
+		Task RunWarmupRequests(IEnumerable<Uri> urls); 
     }
 }

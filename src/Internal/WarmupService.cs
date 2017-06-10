@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace AspNetCoreExt.AppInitialization.Internal
 {
@@ -23,47 +24,30 @@ namespace AspNetCoreExt.AppInitialization.Internal
 
         public bool IsWarmupRequest(HttpContext httpContext) => httpContext.Request.Headers.ContainsKey(this.options.WarmupRequestHeaderName);
 
-        public Task RunWarmupRequests(Uri baseAddress)
+        public async Task RunWarmupRequests(IEnumerable<Uri> urls)
         {
-            using (var httpClient = new HttpClient()
+            if (this.options.WarmupPaths?.Any() != true)
             {
-                BaseAddress = baseAddress
-            })
+                return;
+            }
+
+            using (var httpClient = new HttpClient())
             {
                 httpClient.DefaultRequestHeaders.Add(this.options.WarmupRequestHeaderName, DateTime.UtcNow.ToString());
 
-                IEnumerable<PathString> warmupRequestPaths;
-                if (this.options.WarmupPaths?.Any() == true)
-                {
-                    warmupRequestPaths = this.options.WarmupPaths;
-                }
-                else
-                {
-                    warmupRequestPaths = Enumerable.Repeat(PathString.Empty, 1); // hit the root of the server by default
-                }
+                var warmupRequestTasks = urls.Select(x => RunWarmupRequest(httpClient, x));
 
-                var warmupRequestTasks = RunWarmupRequests(httpClient, warmupRequestPaths);
-
-                return Task.WhenAll(warmupRequestTasks);
+                await Task.WhenAll(warmupRequestTasks);
             }
         }
 
-        private IEnumerable<Task> RunWarmupRequests(HttpClient httpClient, IEnumerable<PathString> paths)
+        private async Task RunWarmupRequest(HttpClient httpClient, Uri url)
         {
-            foreach (var path in paths)
-            {
-                yield return RunWarmupRequest(httpClient, path);
-            }
-        }
-
-
-        private async Task RunWarmupRequest(HttpClient httpClient, PathString path)
-        {
-            var response = await httpClient.GetAsync(path);
+            var response = await httpClient.GetAsync(url);
             if (!response.IsSuccessStatusCode)
             {
                 var statusCode = response.StatusCode;
-                this.logger.LogWarning($"Warmup request for {{{nameof(path)}}} failed with: {{{nameof(statusCode)}}}", path, statusCode);
+                this.logger.LogWarning($"Warmup request for {{{nameof(url)}}} failed with: {{{nameof(statusCode)}}}", url, statusCode);
             }
         }
     }
