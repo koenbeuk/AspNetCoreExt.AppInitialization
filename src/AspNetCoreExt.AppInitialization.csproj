@@ -8,6 +8,7 @@
 		<Description>Add support for application initialization, warmup and serving a splash page prior to handling the first request</Description>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageTags>asp.net core warmup app initialization</PackageTags>
+		<PackageProjectUrl>https://github.com/kbekkenutte/AspNetCoreExt.AppInitialization</PackageProjectUrl>
 	</PropertyGroup>
 
   <ItemGroup>
