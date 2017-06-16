@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
 		<PackageId>AspNetCoreExt.AppInitialization</PackageId>
-		<PackageVersion>1.0.0</PackageVersion>
+		<PackageVersion>1.0.1</PackageVersion>
 		<Authors>Koen</Authors>
 		<Description>Add support for application initialization, warmup and serving a splash page prior to handling the first request</Description>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
