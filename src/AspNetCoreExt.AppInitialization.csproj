@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-		<TargetFrameworks Condition="'$(LibraryFrameworks)'==''">net452;netstandard1.3</TargetFrameworks>
+		<TargetFrameworks Condition="'$(LibraryFrameworks)'==''">netstandard2.0</TargetFrameworks>
 		<PackageId>AspNetCoreExt.AppInitialization</PackageId>
-		<PackageVersion>1.0.2</PackageVersion>
+		<PackageVersion>2.0.0</PackageVersion>
 		<Authors>Koen</Authors>
 		<Description>Add support for application initialization, warmup and serving a splash page prior to handling the first request</Description>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -12,12 +12,12 @@
 	</PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
   </ItemGroup>
 
 </Project>
